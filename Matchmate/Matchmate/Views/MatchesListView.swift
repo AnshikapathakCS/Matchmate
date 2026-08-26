@@ -9,11 +9,13 @@ struct MatchesListView: View {
             VStack(spacing: 0) {
                 if !network.isOnline {
                     offlineBanner
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 content
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Matches")
+            .animation(.easeInOut(duration: 0.25), value: network.isOnline)
             .task {
                 await viewModel.load()
             }
@@ -26,6 +28,8 @@ struct MatchesListView: View {
             loadingView
         } else if let message = viewModel.errorMessage, viewModel.users.isEmpty {
             errorView(message: message)
+        } else if viewModel.users.isEmpty {
+            emptyView
         } else {
             cardsList
         }
@@ -60,6 +64,28 @@ struct MatchesListView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private var emptyView: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                Image(systemName: "person.2.slash")
+                    .font(.largeTitle)
+                    .foregroundStyle(.secondary)
+                Text("No matches yet")
+                    .font(.headline)
+                Text("Pull to refresh and find new people to meet.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 80)
+            .padding(.horizontal, 24)
+            .frame(maxWidth: .infinity)
+        }
+        .refreshable {
+            await viewModel.load()
+        }
+    }
+
     private var cardsList: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
@@ -73,6 +99,9 @@ struct MatchesListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+        }
+        .refreshable {
+            await viewModel.load()
         }
     }
 

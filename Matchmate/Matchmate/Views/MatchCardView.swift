@@ -9,15 +9,8 @@ struct MatchCardView: View {
         VStack(alignment: .leading, spacing: 14) {
             photo
             details
-
-            switch user.status {
-            case .pending:
-                actions
-            case .accepted:
-                statusPill(text: "Member Accepted", icon: "checkmark.seal.fill", color: .pink)
-            case .declined:
-                statusPill(text: "Member Declined", icon: "xmark.seal.fill", color: .secondary)
-            }
+            actionOrStatus
+                .animation(.easeInOut(duration: 0.25), value: user.status)
         }
         .padding(16)
         .background(
@@ -26,15 +19,39 @@ struct MatchCardView: View {
         )
     }
 
+    @ViewBuilder
+    private var actionOrStatus: some View {
+        switch user.status {
+        case .pending:
+            actions
+                .transition(.opacity)
+        case .accepted:
+            statusPill(text: "Member Accepted", icon: "checkmark.seal.fill", color: .pink)
+                .transition(.opacity.combined(with: .scale(scale: 0.97)))
+        case .declined:
+            statusPill(text: "Member Declined", icon: "xmark.seal.fill", color: .secondary)
+                .transition(.opacity.combined(with: .scale(scale: 0.97)))
+        }
+    }
+
     private var photo: some View {
-        AsyncImage(url: URL(string: user.imageURL)) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            Image(systemName: "person.fill")
-                .font(.system(size: 72, weight: .light))
-                .foregroundStyle(.tertiary)
+        AsyncImage(url: URL(string: user.imageURL)) { phase in
+            switch phase {
+            case .empty:
+                ProgressView()
+                    .controlSize(.large)
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .transition(.opacity)
+            case .failure:
+                Image(systemName: "person.crop.circle.badge.exclamationmark")
+                    .font(.system(size: 56, weight: .light))
+                    .foregroundStyle(.tertiary)
+            @unknown default:
+                EmptyView()
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: 260)
