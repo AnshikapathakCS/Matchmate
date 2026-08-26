@@ -1,6 +1,6 @@
 import Foundation
 
-enum MatchStatus {
+enum MatchStatus: String {
     case pending
     case accepted
     case declined

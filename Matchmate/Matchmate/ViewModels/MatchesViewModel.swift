@@ -27,5 +27,6 @@ final class MatchesViewModel {
     func updateStatus(for id: String, to status: MatchStatus) {
         guard let index = users.firstIndex(where: { $0.id == id }) else { return }
         users[index].status = status
+        repository.updateStatus(for: id, to: status)
     }
 }
