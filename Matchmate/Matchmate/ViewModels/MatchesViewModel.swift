@@ -14,12 +14,17 @@ final class MatchesViewModel {
     }
 
     func load() async {
-        isLoading = true
+        isLoading = users.isEmpty
         errorMessage = nil
         do {
-            users = try await repository.fetchMatches()
+            for try await batch in repository.loadMatches() {
+                users = batch
+                isLoading = false
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            if users.isEmpty {
+                errorMessage = error.localizedDescription
+            }
         }
         isLoading = false
     }

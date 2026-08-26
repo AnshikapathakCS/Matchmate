@@ -2,15 +2,21 @@ import SwiftUI
 
 struct MatchesListView: View {
     @State private var viewModel = MatchesViewModel()
+    private let network = NetworkMonitor.shared
 
     var body: some View {
         NavigationStack {
-            content
-                .background(Color(.systemGroupedBackground))
-                .navigationTitle("Matches")
-                .task {
-                    await viewModel.load()
+            VStack(spacing: 0) {
+                if !network.isOnline {
+                    offlineBanner
                 }
+                content
+            }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Matches")
+            .task {
+                await viewModel.load()
+            }
         }
     }
 
@@ -68,6 +74,18 @@ struct MatchesListView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+    }
+
+    private var offlineBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "wifi.slash")
+            Text("You're offline — showing saved profiles")
+                .font(.footnote.weight(.semibold))
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.orange)
     }
 }
 
