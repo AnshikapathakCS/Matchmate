@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct MatchesListView: View {
-    private let users: [MatchUser] = MatchUser.sampleData
+    @State private var users: [MatchUser] = []
+
+    private let apiClient: APIClient = APIService()
 
     var body: some View {
         NavigationStack {
@@ -16,6 +18,18 @@ struct MatchesListView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Matches")
+            .task {
+                await load()
+            }
+        }
+    }
+
+    private func load() async {
+        do {
+            let response: RandomUserResponse = try await apiClient.request(endpoint: MatchUserEndpoint(count: 10))
+            users = response.results.map(MatchUser.init(api:))
+        } catch {
+            print("Failed to load matches:", error)
         }
     }
 }

@@ -19,14 +19,19 @@ struct MatchCardView: View {
     }
 
     private var photo: some View {
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(Color(.tertiarySystemFill))
-            .frame(height: 260)
-            .overlay(
-                Image(systemName: "person.fill")
-                    .font(.system(size: 72, weight: .light))
-                    .foregroundStyle(.tertiary)
-            )
+        AsyncImage(url: URL(string: user.imageURL)) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } placeholder: {
+            Image(systemName: "person.fill")
+                .font(.system(size: 72, weight: .light))
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 260)
+        .background(Color(.tertiarySystemFill))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var details: some View {
