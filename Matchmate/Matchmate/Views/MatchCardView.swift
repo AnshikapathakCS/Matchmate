@@ -9,7 +9,15 @@ struct MatchCardView: View {
         VStack(alignment: .leading, spacing: 14) {
             photo
             details
-            actions
+
+            switch user.status {
+            case .pending:
+                actions
+            case .accepted:
+                statusPill(text: "Member Accepted", icon: "checkmark.seal.fill", color: .pink)
+            case .declined:
+                statusPill(text: "Member Declined", icon: "xmark.seal.fill", color: .secondary)
+            }
         }
         .padding(16)
         .background(
@@ -67,10 +75,32 @@ struct MatchCardView: View {
         }
         .controlSize(.large)
     }
+
+    private func statusPill(text: String, icon: String, color: Color) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+            Text(text).fontWeight(.semibold)
+        }
+        .font(.subheadline)
+        .foregroundStyle(color)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(color.opacity(0.12), in: Capsule())
+    }
 }
 
 #Preview {
-    MatchCardView(user: MatchUser.sampleData[0])
+    ScrollView {
+        VStack(spacing: 16) {
+            MatchCardView(user: MatchUser.sampleData[0])
+            MatchCardView(user: {
+                var u = MatchUser.sampleData[1]; u.status = .accepted; return u
+            }())
+            MatchCardView(user: {
+                var u = MatchUser.sampleData[2]; u.status = .declined; return u
+            }())
+        }
         .padding()
-        .background(Color(.systemGroupedBackground))
+    }
+    .background(Color(.systemGroupedBackground))
 }

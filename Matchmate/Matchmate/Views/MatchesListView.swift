@@ -58,7 +58,11 @@ struct MatchesListView: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 ForEach(viewModel.users) { user in
-                    MatchCardView(user: user)
+                    MatchCardView(
+                        user: user,
+                        onAccept: { viewModel.updateStatus(for: user.id, to: .accepted) },
+                        onDecline: { viewModel.updateStatus(for: user.id, to: .declined) }
+                    )
                 }
             }
             .padding(.horizontal, 16)

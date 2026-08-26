@@ -23,4 +23,9 @@ final class MatchesViewModel {
         }
         isLoading = false
     }
+
+    func updateStatus(for id: String, to status: MatchStatus) {
+        guard let index = users.firstIndex(where: { $0.id == id }) else { return }
+        users[index].status = status
+    }
 }
